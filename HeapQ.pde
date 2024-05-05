@@ -26,7 +26,7 @@ class HeapQ { // min-heap så første indeks altid er det mindste. Kraftigt insp
     int[] item = queue.get(pos);
 
     while (pos > startpos) {
-      int parentpos = floor(pos/2);
+      int parentpos = floor((pos-1)/2);
       int[] parent = queue.get(parentpos);
       if (item[0] < parent[0]) {
         queue.set(pos, parent);
