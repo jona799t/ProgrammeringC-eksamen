@@ -1,4 +1,4 @@
-class HeapQ {
+class HeapQ { // min-heap så første indeks altid er det mindste. Kraftigt inspireret af Pythons HeapQ implementation: https://github.com/python/cpython/blob/3.8/Lib/heapq.py
   ArrayList<int[]> queue;
   HeapQ() {
     queue = new ArrayList<int[]>();
@@ -6,53 +6,55 @@ class HeapQ {
 
   void add(int[] item) {
     queue.add(item);
-
-    int i = queue.size()-1;
-    while (i > 0) {
-      int iParent = floor((i-1)/2);
-      int[] parent = queue.get(iParent);
-      if (item[0] < parent[0]) { // Hvis det er mindre end den oven over
-        queue.set(i, parent);
-        i = iParent;
-      } else { // Ellers har den fundet sin plads
-        queue.set(i, item);
-        break;
-      }
-    }
+    shiftdown(0, queue.size()-1);
   }
 
   int[] pop() {
-    // Ombytning og fjernelse af toppen
-    int[] top = queue.get(0);
     int[] last = queue.get(queue.size()-1);
-    queue.set(0, last);
-    queue.remove(last);
+    queue.remove(queue.size()-1);
+    if (queue.size() > 0) {
+      int[] item = queue.get(0);
+      queue.set(0, last);
+      shiftup(0);
 
-    int i = 0;
-    int længde = queue.size();
+      return item;
+    }
+    return last;
+  }
 
-    if (længde > 0) {
-      while (i < længde) {
-        int iBarnVenstre = 2*i+1;
-        int iBarnHøjre = 2*i+2;
-        if (iBarnHøjre >= længde || iBarnVenstre >= længde) break;
+  void shiftdown(int startpos, int pos) {
+    int[] item = queue.get(pos);
 
-        int[] barnVenstre = queue.get(iBarnVenstre);
-        int[] barnHøjre = queue.get(iBarnHøjre);
-
-        if ((barnVenstre[0] < last[0] && barnHøjre[0] < last[0])) { // Den sidder på sin plads
-          break;
-        } else if (barnHøjre[0] < barnVenstre[0]) {
-          queue.set(i, barnHøjre);
-          i = iBarnHøjre;
-        } else {
-          queue.set(i, barnVenstre);
-          i = iBarnVenstre;
-        }
+    while (pos > startpos) {
+      int parentpos = floor(pos/2);
+      int[] parent = queue.get(parentpos);
+      if (item[0] < parent[0]) {
+        queue.set(pos, parent);
+        pos = parentpos;
+      } else {
+        break;
       }
-      queue.set(i, last);
     }
 
-    return top;
+    queue.set(pos, item);
+  }
+
+  void shiftup(int pos) {
+    int endpos = queue.size();
+    int startpos = pos;
+    int[] newitem = queue.get(pos);
+    int childpos = pos * 2 + 1;
+
+    while (childpos < endpos) {
+      int rightpos = childpos + 1;
+      if (rightpos < endpos && queue.get(childpos)[0] > queue.get(rightpos)[0]) {
+        childpos = rightpos;
+      }
+      queue.set(pos, queue.get(childpos));
+      pos = childpos;
+      childpos = pos * 2 + 1;
+    }
+    queue.set(pos, newitem);
+    shiftdown(startpos, pos);
   }
 }
